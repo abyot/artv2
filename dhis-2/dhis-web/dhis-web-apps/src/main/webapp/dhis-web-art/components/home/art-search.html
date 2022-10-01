@@ -1,0 +1,96 @@
+<div class="row">
+    <div class="col-sm-6">
+        <h3>{{'search_art' | translate}}</h3>
+        <table class="table table-bordered table-striped">
+            <tr ng-repeat="header in model.artHeaders">
+                <td>
+                    {{header.displayName}}
+                </td>
+                <td>
+                    <ng-form name="innerForm">
+                        <div ng-switch="header.valueType">
+                            <div ng-switch-when="NUMBER">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" ng-attr-placeholder="{{'lower_limit' | translate}}" ng-model="filterText[header.id].start">
+                                    <span class="input-group-btn" style="width:0px;"></span>
+                                    <input type="number" class="form-control" ng-attr-placeholder="{{'lower_limit' | translate}}" ng-model="filterText[header.id].end">
+                                </div>
+                            </div>
+                            <div ng-switch-when="INTEGER">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" ng-attr-placeholder="{{'lower_limit' | translate}}" ng-model="filterText[header.id].start">
+                                    <span class="input-group-btn" style="width:0px;"></span>
+                                    <input type="number" class="form-control" ng-attr-placeholder="{{'lower_limit' | translate}}" ng-model="filterText[header.id].end">
+                                </div>
+                            </div>
+                            <div ng-switch-when="INTEGER_POSITIVE">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" ng-attr-placeholder="{{'lower_limit' | translate}}" ng-model="filterText[header.id].start">
+                                    <span class="input-group-btn" style="width:0px;"></span>
+                                    <input type="number" class="form-control" ng-attr-placeholder="{{'lower_limit' | translate}}" ng-model="filterText[header.id].end">
+                                </div>
+                            </div>
+                            <div ng-switch-when="INTEGER_NEGATIVE">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" ng-attr-placeholder="{{'lower_limit' | translate}}" ng-model="filterText[header.id].start">
+                                    <span class="input-group-btn" style="width:0px;"></span>
+                                    <input type="number" class="form-control" ng-attr-placeholder="{{'lower_limit' | translate}}" ng-model="filterText[header.id].end">
+                                </div>
+                            </div>
+                            <div ng-switch-when="INTEGER_ZERO_OR_POSITIVE">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" ng-attr-placeholder="{{'lower_limit' | translate}}" ng-model="filterText[header.id].start">
+                                    <span class="input-group-btn" style="width:0px;"></span>
+                                    <input type="number" class="form-control" ng-attr-placeholder="{{'lower_limit' | translate}}" ng-model="filterText[header.id].end">
+                                </div>
+                            </div>
+                            <div ng-switch-when="DATE">
+                                <div class="input-group">
+                                    <input type="text" d2-date class="form-control" placeholder="{{'start_date' | translate}}" ng-model="filterText[header.id].start">
+                                    <span class="input-group-btn" style="width:0px;"></span>
+                                    <input type="text" d2-date class="form-control" placeholder="{{'end_date' | translate}}" ng-model="filterText[header.id].end">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-danger"
+                                                title="{{'remove_filter' | translate}}"
+                                                ng-disabled="!filterText[header.id].start && !filterText[header.id].end"
+                                                ng-click="removeStartEndFilterText(header.id)">
+                                            <span><i class="fa fa-trash-o" ></i></span>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div ng-switch-when="TEXT">
+                                <div ng-if="header.optionSetValue">
+                                    <ui-select multiple
+                                                ng-model="filterText[header.id]"
+                                                theme="bootstrap" >
+                                        <ui-select-match allow-clear="true" ng-attr-placeholder="{{'select_or_search'| translate}}">{{$item.displayName}}</ui-select-match>
+                                        <ui-select-choices repeat="option in model.optionSets[header.optionSet.id].options | filter: $select.search | limitTo:maxOptionSize">
+                                            <div ng-bind-html="option.displayName | highlight: $select.search"></div>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                                <div ng-if="!header.optionSetValue">
+                                    <input type="text" class="form-control" ng-model="filterText[header.id]">
+                                </div>
+                            </div>
+                            <div ng-switch-default>
+                                <input type="text" class="form-control" ng-model="filterText[header.id]">
+                            </div>
+                        </div>
+                    </ng-form>
+                </td>
+            </tr>
+        </table>
+        <button type="button"
+                class="btn btn-info"
+                ng-click="searchArt()">
+            {{'search'| translate}}
+        </button>
+        <button type="button"
+                class="btn btn-danger horizontal-spacing"
+                ng-click="cancelSearch()">
+            {{'cancel'| translate}}
+        </button>
+    </div>
+</div>

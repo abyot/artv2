@@ -1,0 +1,118 @@
+<div class="modal-header page">
+    <h3>{{'art_status'| translate}}</h3>
+</div>
+
+<div class="modal-body page">
+    <h4>
+        {{'action_detail'| translate}}
+    </h4>
+
+    <form name="outerForm" novalidate autocomplete="off">
+        <div class="row">
+            <div class="col-sm-12">
+                <table class="table table-responsive table-bordered table-striped small-bottom-margin">
+                    <tr>
+                        <td>
+                            {{stage.executionDateLabel}}
+                        </td>
+                        <td>
+                            <input type="text"
+                                   ng-attr-placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
+                                   name="{{stage.id}}"
+                                   class="form-control pull-center"
+                                   d2-date
+                                   min-date="art.enrollmentDate"
+                                   max-date='0'
+                                   ng-disabled="canAddOrEditStatus()"
+                                   ng-required="true"
+                                   ng-model="selectedEvent.eventDate"/>
+                            <span ng-messages="{{outerForm[stage.id].$error}}" ng-if="interacted(outerForm[stage.id])" class="required" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></span>
+                        </td>
+                    </tr>
+                    <tr ng-repeat="psde in stage.programStageDataElements" ng-init="de = dataElementsById[psde.dataElement.id]">
+                        <td>
+                            {{de.displayName}}
+                        </td>
+                        <td>
+                            <ng-form name="innerStatusForm">
+                                <div ng-if="de.optionSetValue">
+                                    <ui-select ng-model="selectedEvent.values[de.id]"
+                                               ng-required="psde.compulsory"
+                                               ng-disabled="canAddOrEditStatus()"
+                                               name="foo"
+                                               theme="select2"
+                                               style="width:100%;">
+                                        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{optionSetsById[de.optionSet.id].options && optionSetsById[de.optionSet.id].options.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                                        <ui-select-choices repeat="option.displayName as option in optionSetsById[de.optionSet.id].options | filter: $select.search | limitTo:maxOptionSize">
+                                            <span ng-bind-html="option.displayName | highlight: $select.search"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                                <div ng-if="!de.optionSetValue" ng-switch="de.valueType">
+                                    <div ng-switch-when="NUMBER">
+                                        <input type="number"
+                                               name="foo"
+                                               class="form-control pull-center"
+                                               ng-disabled="canAddOrEditStatus()"
+                                               ng-required="psde.compulsory"
+                                               ng-model="selectedEvent.values[de.id]">
+                                    </div>
+                                    <div ng-switch-when="TEXT">
+                                        <input type="text"
+                                               name="foo"
+                                               class="form-control pull-center"
+                                               ng-disabled="canAddOrEditStatus()"
+                                               ng-required="psde.compulsory"
+                                               ng-model="selectedEvent.values[de.id]">
+                                    </div>
+                                    <div ng-switch-when="LONG_TEXT">
+                                        <textarea rows="3"
+                                                  name="foo"
+                                                  class="form-control pull-center"
+                                                  ng-disabled="canAddOrEditStatus()"
+                                                  ng-required="psde.compulsory"
+                                                  ng-model="selectedEvent.values[de.id]">
+                                        </textarea>
+                                    </div>
+                                    <div ng-switch-when="DATE">
+                                        <input type="text"
+                                               ng-attr-placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
+                                               name="foo"
+                                               class="form-control pull-center"
+                                               d2-date
+                                               ng-disabled="canAddOrEditStatus()"
+                                               ng-required="psde.compulsory"
+                                               ng-model="selectedEvent.values[de.id]"/>
+                                    </div>
+                                </div>
+                                <span ng-messages="innerStatusForm.foo.$error" ng-if="interacted(innerStatusForm.foo)" class="required" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></span>
+                            </ng-form>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<div class="modal-footer page">
+    <button type="button"
+            class="btn btn-primary"
+            ng-disabled="outerForm.invalid"
+            ng-click="saveStatus()">
+        {{'save'| translate}}
+    </button>
+    <button type="button"
+            class="btn btn-danger horizontal-spacing"
+            ng-if="selectedEvent.event"
+            ng-click="deleteStatus()">
+        {{'delete'| translate}}
+    </button>
+    <button type="button"
+            class="btn btn-default horizontal-spacing"
+            ng-click="close()">
+        {{'close'| translate}}
+    </button>
+</div>

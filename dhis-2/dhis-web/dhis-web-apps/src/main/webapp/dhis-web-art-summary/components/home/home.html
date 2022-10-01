@@ -1,0 +1,63 @@
+<span id="showLeftBar" class="hideInPrint">
+    <a href="javascript:dhis2.leftBar.showAnimated()" title="{{'show_menu'| translate}}"><i class="fa fa-arrow-right leftBarIcon"></i></a>
+</span>
+
+<div id="leftBar">
+
+    <d2-left-bar></d2-left-bar>
+
+
+    <div class="ou-search-left-bar">
+        <div ng-if="treeLoaded">
+            {{'budget_institution' | translate}}
+        </div>
+        <div class="input-group">
+            <input  id="searchField" name="key" class="form-control" placeholder="{{'search' | translate}}">
+            <span class="input-group-btn">
+              <button class="btn btn-primary" type="button" onclick="selection.findByName()">{{'go' | translate}}</button>
+            </span>
+        </div>
+    </div>
+
+    <div id="orgUnitTree">
+        <ul>
+        </ul>
+    </div>
+
+    <img id="ouwt_loader" src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/>
+
+    <div class="small-horizontal-spacing" ng-if="!treeLoaded">
+        {{'loading_tree'| translate}}
+    </div>
+
+</div>
+
+<div class="page" id="mainPage">
+
+    <input type="hidden" class="form-control" selected-org-unit ng-model="selectedOrgUnit.displayName" disabled="">
+
+    <div ng-if="!selectedOrgUnit" class="font-16">
+        <img src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/><br>
+        {{'loading_metadata'| translate}}
+    </div>
+
+    <div ng-show="selectedOrgUnit">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div equal-height-nav-tabs>
+                    <tabset justified="true">
+                        <tab heading="{{menu.header}}"
+                             ng-repeat="menu in model.menus | orderBy:'order'"
+                             class="horizontal-menu main-horizontal-menu font-16"
+                             active="menu.active"
+                             ng-click="resetView(menu, $event)">
+                            <div ng-include="menu.view"></div>
+                        </tab>
+                    </tabset>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

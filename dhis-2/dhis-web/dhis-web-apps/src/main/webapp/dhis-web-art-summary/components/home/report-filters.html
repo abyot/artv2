@@ -1,0 +1,39 @@
+<div class="panel report-filter custom-panel">
+    <div class="panel-heading cursor-pointer custom-panel" ng-click="showReportFilters = !showReportFilters">
+        {{'advanced_filters'| translate}}
+        <div class="pull-right">
+            <span ng-show="showReportFilters">
+                <i class="fa fa-minus-square-o fa-2x vertical-center" title="{{'collapse'| translate}}"></i>
+            </span>
+            <span ng-show="!showReportFilters">
+                <i class="fa fa-plus-square-o fa-2x vertical-center" title="{{'expand'| translate}}"></i>
+            </span>
+        </div>
+    </div>
+    <div class="panel panel-body custom-panel no-radius remove-bottom-margin" ng-if="showReportFilters">
+        <div ng-if="model.selectedProgram && selectedOrgUnit">
+            <div class="row small-vertical-spacing" ng-repeat="header in model.artHeaders">
+                <div class="col-sm-4">
+                    {{header.displayName}}
+                </div>
+                <div class="col-sm-8">
+                    <ui-select multiple
+                                ng-model="filterText[header.id]"
+                                on-select="search()"
+                                on-remove="search()"
+                                theme="bootstrap" >
+                        <ui-select-match allow-clear="true" ng-attr-placeholder="{{'select_or_search'| translate}}">{{$item.displayName}}</ui-select-match>
+                        <ui-select-choices repeat="option in model.optionSets[header.optionSet.id].options | filter: $select.search | limitTo:maxOptionSize">
+                            <div ng-bind-html="option.displayName | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div ng-if="!selectedOrgUnit || !model.selectedProgram">
+            <div class="alert alert-warning">
+                {{'vote_program_not_selectd' | translate}}
+            </div>
+        </div>
+    </div>
+</div>

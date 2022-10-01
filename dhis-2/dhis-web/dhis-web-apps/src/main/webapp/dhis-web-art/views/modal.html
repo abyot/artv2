@@ -1,0 +1,14 @@
+<div class="modal-header">
+  <h3>{{modalOptions.headerText | translate}}</h3>
+</div>
+<div class="modal-body">
+  <p>{{modalOptions.bodyText | translate}}</p>
+  <br>
+  <div class="alert alert-danger" ng-if="modalOptions.bodyWarning !== ''">
+      {{modalOptions.bodyWarning}}
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-default" data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText | translate}}</button>
+  <button class="btn btn-primary" data-ng-click="modalOptions.ok();">{{modalOptions.actionButtonText | translate}}</button>
+</div>

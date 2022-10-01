@@ -1,0 +1,97 @@
+<div class="modal-header page">
+    <h3>{{'additional_tracking'| translate}}</h3>
+</div>
+
+<div class="modal-body page">
+    <ui-select ng-model="model.selectedProgram"
+            theme="select2"
+            ng-disabled="isOnAddEditMode()"
+            style="width:100%;">
+        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.programs && model.programs.length > 0 ? 'select_tracking_program' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+        <ui-select-choices repeat="program in model.programs | filter: $select.search | limitTo:maxOptionSize | orderBy: 'displayName' ">
+            <span ng-bind-html="program.displayName | highlight: $select.search"></span>
+        </ui-select-choices>
+    </ui-select>
+
+
+    <form name="outerForm" novalidate autocomplete="off">
+        <table class="table table-bordered table-striped vertical-spacing" ng-if="model.selectedProgram">
+            <tr ng-repeat="att in model.artHeaders">
+                <td>
+                    {{att.displayName}}
+                </td>
+                <td>
+                    <ng-form name="innerForm">
+                        <div ng-if="att.optionSetValue">
+                            <ui-select ng-model="model.art[att.id]"
+                                       ng-required="att.mandatory"
+                                       ng-disabled="model.selectedArt[att.id]"
+                                       name="foo"
+                                       theme="select2"
+                                       style="width:100%;">
+                                <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.optionSets[att.optionSet.id].options && model.optionSets[att.optionSet.id].options.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                                <ui-select-choices repeat="option.displayName as option in model.optionSets[att.optionSet.id].options | filter: $select.search | limitTo:maxOptionSize">
+                                    <span ng-bind-html="option.displayName | highlight: $select.search"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                        <div ng-if="!att.optionSetValue" ng-switch="att.valueType">
+                            <div ng-switch-when="NUMBER">
+                                <input type="number"
+                                    name="foo"
+                                    class="form-control pull-center"
+                                    ng-required="att.mandatory"
+                                    ng-model="model.art[att.id]"
+                                    ng-disabled="model.selectedArt[att.id]">
+                            </div>
+                            <div ng-switch-when="TEXT">
+                                <input type="text"
+                                    name="foo"
+                                    class="form-control pull-center"
+                                    ng-required="att.mandatory"
+                                    ng-model="model.art[att.id]"
+                                    ng-disabled="model.selectedArt[att.id]">
+                            </div>
+                            <div ng-switch-when="LONG_TEXT">
+                                <textarea rows="3"
+                                    name="foo"
+                                    class="form-control pull-center"
+                                    ng-required="att.mandatory"
+                                    ng-model="model.art[att.id]"
+                                    ng-disabled="model.selectedArt[att.id]">
+                                </textarea>
+                            </div>
+                            <div ng-switch-when="DATE">
+                                <input type="text"
+                                    ng-attr-placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
+                                    name="foo"
+                                    class="form-control pull-center"
+                                    d2-date
+                                    max-date="0"
+                                    ng-required="att.mandatory"
+                                    ng-model="model.art[att.id]"
+                                    ng-disabled="model.selectedArt[att.id]"/>
+                            </div>
+                        </div>
+                        <span ng-messages="innerForm.foo.$error" ng-if="interacted(innerForm.foo, 1)" class="required" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></span>
+                    </ng-form>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+</div>
+
+<div class="modal-footer page">
+    <button type="button"
+            class="btn btn-primary"
+            ng-disabled="outerForm.invalid || !model.selectedProgram"
+            ng-click="saveEnrollment()">
+        {{'save'| translate}}
+    </button>
+    <button type="button"
+            class="btn btn-default horizontal-spacing"
+            ng-click="close()">
+        {{'close'| translate}}
+    </button>
+</div>

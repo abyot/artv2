@@ -1,0 +1,30 @@
+<div ng-if="model.selectedProgram.id && selectedOrgUnit.id" class="vertical-spacing">
+
+    <div ng-if="!model.displayAddArt && !model.displaImportArt && !model.displayEditArt && !model.displaySearchArt">
+        <div ng-include="'components/home/art-list.html'"></div>
+    </div>
+    <div ng-if="model.displayAddArt">
+        <div ng-include="'components/home/art-add.html'"></div>
+    </div>
+
+    <div ng-if="model.displaImportArt">
+        <div ng-include="'components/home/art-import.html'"></div>
+    </div>
+
+    <div ng-if="model.displayEditArt">
+        <div ng-include="'components/home/art-edit.html'"></div>
+    </div>
+
+    <div ng-if="model.displaySearchArt">
+        <div ng-include="'components/home/art-search.html'"></div>
+    </div>
+
+</div>
+
+<div class="alert alert-warning small-vertical-spacing" ng-if="model.programs.length === 0 ">
+    {{'no_art_program' | translate}}
+</div>
+
+<div class="alert alert-warning small-vertical-spacing" ng-if="model.programs.length > 0 && !model.selectedProgram">
+    {{'please_select_art_program' | translate}}
+</div>

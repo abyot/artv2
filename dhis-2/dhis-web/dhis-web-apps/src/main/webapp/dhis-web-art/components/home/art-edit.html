@@ -1,0 +1,149 @@
+<div class="row">
+    <div class="col-sm-12 font-16">
+        {{'art_details'| translate}}
+        <span ng-click="deleteArt()" class="btn btn-danger horizontal-spacing" title="{{'delete_art' | translate}}">
+            <i class="fa fa-trash-o"></i>
+        </span>
+        <span ng-if="model.enrollablePrograms.length > 0"
+              class="btn btn-info horizontal-spacing"
+              title="{{'additional_tracking' | translate}}"
+              ng-click="additionalTracking()">
+            <i class="fa fa-arrow-right"></i>
+        </span>
+    </div>
+</div>
+
+<div class="row small-vertical-spacing">
+    <div class="col-sm-12 col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading bold">
+                {{'art_profile'| translate}}
+                <span class="nav-pills pull-right" ng-if="!addOrEditArtDenied()">
+                    <a href ng-click="showEditProfile()" ng-attr-title="{{'edit_profile'| translate}}">
+                        {{'edit'| translate}}
+                    </a>
+                </span>
+            </div>
+            <div class="panel-body small-pading">
+                <table class="table table-responsive table-bordered table-striped small-bottom-margin">
+                    <tr ng-repeat="att in model.artHeaders">
+                        <td>
+                            {{att.displayName}}
+                        </td>
+                        <td>
+                            <ng-form name="innerProfileForm">
+                                <div ng-if="att.optionSetValue">
+                                    <ui-select ng-model="model.art[att.id]"
+                                               ng-required="att.mandatory"
+                                               ng-disabled="addOrEditArtDenied() || !model.editProfile"
+                                               name="foo"
+                                               theme="select2"
+                                               style="width:100%;">
+                                        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.optionSets[att.optionSet.id].options && model.optionSets[att.optionSet.id].options.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                                        <ui-select-choices repeat="option.displayName as option in model.optionSets[att.optionSet.id].options | filter: $select.search | limitTo:maxOptionSize">
+                                            <span ng-bind-html="option.displayName | highlight: $select.search"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                                <div ng-if="!att.optionSetValue" ng-switch="att.valueType">
+                                    <div ng-switch-when="NUMBER">
+                                        <input type="number"
+                                               name="foo"
+                                               class="form-control pull-center"
+                                               ng-disabled="addOrEditArtDenied() || !model.editProfile"
+                                               ng-required="att.mandatory"
+                                               ng-model="model.art[att.id]">
+                                    </div>
+                                    <div ng-switch-when="TEXT">
+                                        <input type="text"
+                                               name="foo"
+                                               class="form-control pull-center"
+                                               ng-disabled="addOrEditArtDenied() || !model.editProfile"
+                                               ng-required="att.mandatory"
+                                               ng-model="model.art[att.id]">
+                                    </div>
+                                    <div ng-switch-when="LONG_TEXT">
+                                        <textarea rows="3"
+                                                  name="foo"
+                                                  class="form-control pull-center"
+                                                  ng-disabled="addOrEditArtDenied() || !model.editProfile"
+                                                  ng-required="att.mandatory"
+                                                  ng-model="model.art[att.id]">
+                                        </textarea>
+                                    </div>
+                                    <div ng-switch-when="DATE">
+                                        <input type="text"
+                                               ng-attr-placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
+                                               name="foo"
+                                               class="form-control pull-center"
+                                               d2-date
+                                               ng-disabled="addOrEditArtDenied() || !model.editProfile"
+                                               ng-required="att.mandatory"
+                                               ng-model="model.art[att.id]"/>
+                                    </div>
+                                </div>
+                                <span ng-messages="innerProfileForm.foo.$error" ng-if="interacted(innerProfileForm.foo, 2)" class="required" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></span>
+                            </ng-form>
+                        </td>
+                    </tr>
+                </table>
+                <div class="row col-sm-12 vertical-spacing" ng-if="model.editProfile">
+                    <button type="button"
+                            class="btn btn-info"
+                            ng-click="updateArt()">
+                        {{'update'| translate}}
+                    </button>
+                    <button type="button"
+                            class="btn btn-danger horizontal-spacing"
+                            ng-click="cancelEditProfile()">
+                        {{'cancel'| translate}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading bold">
+                {{'actions_taken'| translate}}
+            </div>
+            <div class="panel-body small-pading">
+
+                <table class="table table-responsive table-bordered table-striped small-bottom-margin">
+                    <thead>
+                        <tr>
+                            <th>
+                                {{'date'| translate}}
+                            </th>
+                            <th>
+                                {{'action'| translate}}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-attr-title="{{'show_details'| translate}}" class="cursor-pointer" ng-repeat="status in model.art.status" ng-click="showRecordAction(status)">
+                            <td>
+                                {{status.eventDate}}
+                            </td>
+                            <td ng-repeat="psde in model.selectedStage.programStageDataElements" ng-init="de = model.dataElementsById[psde.dataElement.id]">
+                                {{status.values[de.id]}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-warning" ng-if="$scope.model.art.status.length === 0">
+                    {{'no_action_exists'| translate}}
+                </div>
+                <div class="row col-sm-12 vertical-spacing" ng-if="model.selectedStage">
+                    <button type="button"
+                            class="btn btn-primary"
+                            ng-click="showRecordAction()">
+                        {{'record_action'| translate}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

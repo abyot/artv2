@@ -1,0 +1,81 @@
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="input-group">
+            <div class="input-group-btn">
+                <div class="btn btn-primary btn-file">
+                    <i class="fa fa-upload" title="{{'select_file_for_upload' | translate}}" aria-hidden="true"></i>
+                    <input type="file" required="true" file-upload="model.inputFile" name="test"/>
+                </div>
+            </div>
+            <input type="text" class="form-control" placeholder="{{'please_select_excel_file' | translate}}" ng-model="model.inputFile[0].name" readonly>
+        </div>
+    </div>
+    <div class="col-sm-6" ng-if="model.excelData.SheetNames.length > 0">
+        <ui-select ng-model="model.selectedSheet"
+            ng-required="true"
+            theme="select2"
+            style="width:100%;">
+            <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.excelData.SheetNames && model.excelData.SheetNames.length > 0 ? 'select_sheet' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+            <ui-select-choices repeat="sheetName as sheetName in model.excelData.SheetNames | filter: $select.search | limitTo:maxOptionSize">
+                <span ng-bind-html="sheetName | highlight: $select.search"></span>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+</div>
+
+<div class="row">
+    <div ng-if="model.selectedSheet && !model.parsingStarted && model.parsingFinished">
+        <div class="col-sm-12 small-vertical-spacing" ng-if="model.excelUploadStarted && !model.excelUploadFinished">
+            <div class="alert alert-danger">
+                <img src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/><br>
+                {{'uploading_excel_file'| translate}}
+            </div>
+        </div>
+        <div class="col-sm-12 table-scroll vertical-spacing" ng-if="model.excelRows.length > 0">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th ng-repeat="column in model.excelColumns">
+                            {{column.displayName}}
+                        </th>
+                    </tr>
+                    <tr>
+                        <th ng-repeat="column in model.excelColumns">
+                            <ui-select ng-model="column.mappedObject"
+                                ng-change="assignColumnToModel(column)"
+                                theme="select2"
+                                style="width:100%;">
+                                <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.excelData.SheetNames.length > 0 ? 'select_data_to_map' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                                <ui-select-choices repeat="header.id as header in getUnAssignedHeaders(column) | filter: $select.search">
+                                    <span ng-bind-html="header.displayName | highlight: $select.search"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="row in model.excelRows" ng-init="rowIndex = $index">
+                        <td ng-repeat="column in model.excelColumns" ng-class="{true: 'green', false: 'red'}[model.cellValidity[column.displayName][rowIndex]]">
+                            {{row[column.displayName]}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="vertical-spacing">
+                <button type="button" class="btn btn-primary trim" ng-click="uploadExcel()">{{'upload'| translate}}</button>
+                <button type="button" class="btn btn-default trim small-horizonal-spacing" ng-click="cancelEdit()">{{'cancel'| translate}}</button>
+            </div>
+        </div>
+        <div class="alert alert-warning" ng-if="model.excelRows.length === 0">
+            {{'file_has_no_data' | translate}}
+        </div>
+    </div>
+</div>
+
+<div class="row small-vertical-spacing" ng-if="model.parsingStarted && !model.parsingFinished">
+    <div class="col-sm-12">
+        <img src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/><br>
+        {{'parsing_excel_file'| translate}}
+    </div>
+</div>

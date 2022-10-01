@@ -1,0 +1,115 @@
+<div class="small-vertical-spacing hideInPrint">
+    <div class="selection-group">
+        <div class="col-sm-7 green-info-area">
+            <div class="row small-vertical-spacing">
+                <div class="col-sm-2">
+                    {{'audit_year'| translate}}
+                </div>
+                <div class="col-sm-4">
+                    <ui-select ng-model="model.selectedPeriod"
+                               theme="select2"
+                               style="width:100%;">
+                        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.periods.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                        <ui-select-choices repeat="period in model.periods | filter: $select.search | limitTo:maxOptionSize">
+                            <span ng-bind-html="period.displayName | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+                <div class="col-sm-4">
+                    <div class="pull-left">
+                        <button type="button"
+                                class="btn btn-default"
+                                ng-click="getPeriods('PRV')"
+                                title="{{'previous_periods'| translate}}">
+                            <i class="fa fa-backward"></i>
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-default"
+                                ng-disabled="model.periodOffset >= model.openFuturePeriods"
+                                ng-click="getPeriods('NXT')"
+                                title="{{'next_periods'| translate}}">
+                            <i class="fa fa-forward"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row small-vertical-spacing">
+                <div class="col-sm-2">
+                    {{'audit_tracking_mode'| translate}}
+                </div>
+                <div class="col-sm-10">
+                    <ui-select ng-model="model.selectedProgram"
+                               theme="select2"
+                               style="width:100%;">
+                        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.programs && model.programs.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                        <ui-select-choices repeat="program in model.programs | filter: $select.search | limitTo:maxOptionSize | orderBy: ['displayName']">
+                            <span ng-bind-html="program.displayName | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="row vertical-spacing pull-right">
+                <div class="col-sm-12">
+                    <button type="button"
+                            ng-disabled="!model.selectedProgram"
+                            class="btn btn-primary"
+                            ng-click="search()">
+                        {{'display_summary'| translate}}
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-5 blue-info-area add-small-left-padding">
+            <div ng-include="'components/home/report-filters.html'"></div>
+        </div>
+    </div>
+</div>
+<div class="row" ng-if="model.arts.length > 0">
+    <div class="col-sm-7">
+        <span class="hideInPrint">
+            <span class="dropdown">
+                <label class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-attr-title="{{'download'| translate}}"><i class="fa fa-download"></i></label>
+                <ul class="dropdown-menu">
+                    <li><h6 class="dropdown-header">{{'download'| translate}}</h6></li>
+                    <li class="divider"></li>
+                    <li><a href filename="recommendaiton-list.csv" ng-click="exportData()">{{'csv'| translate}}</a></li>
+                    <li><a href filename="recommendaiton-list.pdf" onclick="javascript:window.print()">{{'pdf'| translate}}</a></li>
+                </ul>
+            </span>
+        </span>
+    </div>
+    <div class="col-sm-7" id="exportTable">
+        <table class="table table-bordered dhis2-table-hover table-responsive">
+            <thead>
+                <tr>
+                    <th class="vertical-center cursor-pointer" ng-repeat="header in model.summaryHeaders">
+                        <span ng-attr-title="{{'sort' | translate}}"  ng-click="setSortHeader(header)">
+                            {{header.displayName}}
+
+                            <!-- sort icon begins -->
+                            <span class="fa-stack hideInPrint">
+                                <span ng-class="{true: 'alert-danger'} [model.sortHeader.id === header.id && !model.sortHeader.reverse]"><i class="fa fa-sort-asc fa-stack-1x"></i></span>
+                                <span ng-class="{true: 'alert-danger'} [model.sortHeader.id === header.id && model.sortHeader.reverse]"><i class="fa fa-sort-desc fa-stack-1x"></i></span>
+                            </span>
+                            <!-- sort icon ends -->
+
+                        </span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="art in model.arts | orderBy: model.sortHeader.id : model.sortHeader.reverse">
+                    <td ng-repeat="header in model.summaryHeaders"
+                        ng-class="{'green-background': header.code && header.code === 'green', 'yellow-background': header.code && header.code === 'yellow', 'red-background': header.code && header.code === 'red'}"
+                        ng-click="showSummaryDetails(art)">
+                        {{art[header.id]}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="alert alert-warning" ng-if="model.selectedProgram && model.recommendationsFetched && model.arts.length === 0">
+    {{'no_recommendations_found' | translate}}
+</div>

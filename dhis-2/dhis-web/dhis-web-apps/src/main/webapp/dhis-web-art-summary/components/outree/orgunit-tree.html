@@ -1,0 +1,32 @@
+<div class="modal-header page">
+    <h3>{{'vote_hierarchy'| translate}}</h3>
+</div>
+<div class="modal-body page">
+    <div class="tree-menu" data-stop-propagation="true">
+        <script type="text/ng-template" id="treeMenu.html">
+            <span class="tree-menu-button" ng-click="expandCollapse(orgUnit)" ng-show="orgUnit.show && orgUnit.children.length > 0"><i class="fa fa-minus-square-o"></i></span>
+            <span class="tree-menu-button" ng-click="expandCollapse(orgUnit)" ng-show="(!orgUnit.show && orgUnit.children.length > 0) || (!orgUnit.show && orgUnit.hasChildren)"><i class="fa fa-plus-square-o"></i></span>
+            <span class="tree-menu-button" ng-click="setSelectedOrgUnit(orgUnit)" ng-class="{'selected-org-unit' : orgUnit.id === selectedOrgUnit.id}">{{orgUnit.displayName}}</span>
+            <ul class="tree" id="tree" ng-show="orgUnit.show" ng-if="validOrgUnits && validOrgUnits.length > 0">
+                <li ng-class="{'active-menu-item': orgUnit.id !== 'SPACE'}" ng-if="validOrgUnits && validOrgUnits.length && validOrgUnits.indexOf(orgUnit.id) !== -1" ng-repeat="orgUnit in orgUnit.children | orderBy:'displayName'" ng-include="'treeMenu.html'"></li>
+            </ul>
+            <ul class="tree" id="tree" ng-show="orgUnit.show" ng-if="!validOrgUnits">
+                <li ng-class="{'active-menu-item': orgUnit.id !== 'SPACE'}" ng-repeat="orgUnit in orgUnit.children | orderBy:'displayName'" ng-include="'treeMenu.html'"></li>
+            </ul>
+        </script>
+        <ul class="tree" id="tree" ng-if="validOrgUnits && validOrgUnits.length > 0">
+            <li ng-class="{'active-menu-item': orgUnit.id !== 'SPACE'}" ng-if="validOrgUnits.indexOf(orgUnit.id) !== -1" ng-repeat="orgUnit in orgUnits | orderBy:'displayName'" ng-include="'treeMenu.html'"></li>
+        </ul>
+        <ul class="tree" id="tree" ng-if="!validOrgUnits">
+            <li ng-class="{'active-menu-item': orgUnit.id !== 'SPACE'}" ng-repeat="orgUnit in orgUnits | orderBy:'displayName'" ng-include="'treeMenu.html'"></li>
+        </ul>
+    </div>
+    <div class="row alert alert-warning" ng-if="treeLoadingStarted && !treeLoaded">
+        <img src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/><br>
+        {{'loading_tree'| translate}}
+    </div>
+</div>
+<div class="modal-footer page">
+    <button class="btn btn-primary" data-ng-click="select()">{{'select'| translate}}</button>
+    <button class="btn btn-default" data-ng-click="cancel()">{{'cancel'| translate}}</button>
+</div>

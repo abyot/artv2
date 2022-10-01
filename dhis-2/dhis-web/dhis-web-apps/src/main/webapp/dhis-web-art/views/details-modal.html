@@ -1,0 +1,22 @@
+<div class="modal-header page">
+    <h3>{{'details'| translate}}</h3>
+</div>
+
+<div class="modal-body page">
+    <div class="scroll">
+        <table class="listTable dhis2-table-striped-border">
+            <tr ng-repeat="col in gridColumns">
+                <td>
+                    {{col.name | translate}}
+                </td>
+                <td>
+                    {{dictionaryItem[col.id]}}
+                </td>
+            </tr>                                    
+        </table> 
+    </div>       
+</div>
+
+<div class="modal-footer page">        
+    <button class="btn btn-primary" type="button" data-ng-click="close()">{{'close'| translate}}</button>
+</div> 

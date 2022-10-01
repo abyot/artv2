@@ -1,0 +1,23 @@
+<div class="row small-vertical-spacing">
+    <div class="col-sm-12">
+        <ui-select ng-model="model.selectedProgram"
+                theme="select2"
+                style="width:100%;">
+            <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.programs && model.programs.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+            <ui-select-choices repeat="program in model.programs | filter: $select.search | limitTo:maxOptionSize | orderBy: ['displayName']">
+                <span ng-bind-html="program.displayName | highlight: $select.search"></span>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+</div>
+<div class="row small-vertical-spacing" ng-if="model.selectedProgram">
+    <div class="col-sm-12" ng-if="model.dashboardFetched">
+        <dhis2-dashboard downloadlabel="model.downloadLabel" dashboard="model.dashboardItems"></dhis2-dashboard>
+        <div class="vertical-spacing alert alert-warning" ng-if="!model.dashboardItems || model.dashboardItems.length < 1">
+            {{'dashboard_not_found' | translate}}:  {{model.dashboardName}}
+        </div>
+    </div>
+</div>
+<div class="alert alert-warning" ng-if="!model.selectedProgram">
+    {{'please_select_auditing_mode' | translate}}
+</div>

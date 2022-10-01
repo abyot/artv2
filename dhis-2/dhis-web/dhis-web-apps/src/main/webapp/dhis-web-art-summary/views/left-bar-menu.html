@@ -1,0 +1,12 @@
+<div class="menu-title">
+    <h4>{{'menu' | translate}}</h4>
+</div>
+
+<div class="vertical-spacing category-menu">
+
+    <table class="table dhis2-table-hover table-bordered">
+        <tr ng-class="{'selected-menu' : menu.id === model.selectedMenu.id, 'bold': menuItem.bold}" ng-repeat="menu in model.menus">
+            <td class="menu-padding" ng-click="setSelectedMenu(menu)">{{menu.name}}</td>
+        </tr>
+    </table>
+</div>
