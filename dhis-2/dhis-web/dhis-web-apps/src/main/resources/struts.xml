@@ -12,5 +12,17 @@
     </action>
   </package>
 
+  <package name="dhis-web-art" extends="dhis-web-commons" namespace="/dhis-web-art">
+        <action name="index" class="org.hisp.dhis.commons.action.NoAction">
+            <result name="success" type="redirect">index.html</result>
+        </action>
+    </package>
+
+    <package name="dhis-web-art-summary" extends="dhis-web-commons" namespace="/dhis-web-art-summary">
+        <action name="index" class="org.hisp.dhis.commons.action.NoAction">
+            <result name="success" type="redirect">index.html</result>
+        </action>
+    </package>
+
   <!-- INJECT BUNDLED APPS HERE -->
 </struts>
