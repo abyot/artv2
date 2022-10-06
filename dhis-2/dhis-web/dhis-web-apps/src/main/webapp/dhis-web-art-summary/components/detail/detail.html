@@ -1,0 +1,72 @@
+<div class="modal-header page">
+    <h3>{{'art_details'| translate}}</h3>
+</div>
+<div class="modal-body page">
+    <div class="row small-vertical-spacing">
+        <div class="col-sm-12 col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading bold">
+                    {{'art_summary'| translate}}
+                </div>
+                <div class="panel-body small-pading">
+                    <table class="table table-responsive table-bordered table-striped small-bottom-margin">
+                        <tr ng-repeat="att in model.artHeaders">
+                            <td>
+                                {{att.displayName}}
+                            </td>
+                            <td>
+                                <pre>{{model.art[att.id]}}</pre>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading bold">
+                    {{'actions_taken'| translate}}
+                </div>
+                <div class="panel-body small-pading">
+
+                    <table class="table table-responsive table-bordered table-striped small-bottom-margin">
+                        <thead>
+                            <tr>
+                                <th>
+                                    {{'date'| translate}}
+                                </th>
+                                <th>
+                                    {{'action'| translate}}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-attr-title="{{'show_details'| translate}}" class="cursor-pointer" ng-repeat="status in model.art.status" ng-click="showRecordAction(status)">
+                                <td>
+                                    {{status.eventDate}}
+                                </td>
+                                <td ng-repeat="psde in model.selectedStage.programStageDataElements" ng-init="de = model.dataElementsById[psde.dataElement.id]">
+                                    {{status.values[de.id]}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="alert alert-warning" ng-if="$scope.model.art.status.length === 0">
+                        {{'no_action_exists'| translate}}
+                    </div>
+                    <div class="row col-sm-12 vertical-spacing" ng-if="model.selectedStage">
+                        <button type="button"
+                                class="btn btn-primary"
+                                ng-click="showRecordAction()">
+                            {{'record_action'| translate}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer page">
+    <button class="btn btn-primary" data-ng-click="cancel()">{{'close'| translate}}</button>
+</div>

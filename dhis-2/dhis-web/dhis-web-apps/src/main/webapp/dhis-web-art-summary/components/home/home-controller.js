@@ -36,7 +36,8 @@ artSummary.controller('HomeController',
         recommendationsFetched: false,
         recommendationDate: null,
         implementationDate: null,
-        filterParam: ''
+        filterParam: '',
+        selectedArt: null
     };
 
     var applyPeriodFitlerParam = function(){
@@ -197,6 +198,7 @@ artSummary.controller('HomeController',
             });
 
             applyPeriodFitlerParam();
+            $scope.model.allArtHeaders = angular.copy( $scope.model.artHeaders );
             $scope.model.artHeaders = ($filter('filter')($scope.model.artHeaders, {optionSetValue: true}));
 
             $scope.model.dashboardName = $scope.model.selectedProgram.displayName;
@@ -217,7 +219,6 @@ artSummary.controller('HomeController',
             ArtService.search($scope.model.selectedProgram, $scope.selectedOrgUnit, null, $scope.model.filterParam, $scope.model.trackedEntityAttributes, $scope.model.dataElementsById, $scope.model.optionSets).then(function(arts){
                 $scope.model.recommendationsFetched = true;
                 $scope.model.arts = arts;
-                console.log('arts:  ', arts);
             });
         }
     };
@@ -374,6 +375,43 @@ artSummary.controller('HomeController',
     };
 
     $scope.showSummaryDetails = function( art ){
-        console.log('art:  ', art);
+        if ( $scope.model.selectedArt && $scope.model.selectedArt.ou === art.ou ){
+            $scope.model.selectedArt = null;
+        }
+        else{
+            $scope.model.selectedArt = art;
+        }
+    };
+
+    $scope.showArtDetails = function( art ){
+
+        var modalInstance = $modal.open({
+            templateUrl: 'components/detail/detail.html',
+            controller: 'DetailController',
+            windowClass: 'modal-window-detail',
+            resolve: {
+                selectedArt: function(){
+                    return art;
+                },
+                selectedProgram: function(){
+                    return $scope.model.selectedProgram;
+                },
+                trackedEntityAttributesById: function(){
+                    return $scope.model.trackedEntityAttributes;
+                },
+                dataElementsById: function(){
+                    return $scope.model.dataElementsById;
+                },
+                optionSetsById: function(){
+                    return $scope.model.optionSets;
+                },
+                artHeaders: function(){
+                    return $scope.model.allArtHeaders;
+                }
+            }
+        });
+
+        modalInstance.result.then(function(){
+        });
     };
 });

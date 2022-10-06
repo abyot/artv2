@@ -286,6 +286,11 @@ ul.tree ul li:last-child:before {
     color: #000;
 }
 
+.selected-art {
+    font-weight: bold;
+    font-size: 16px !important;
+}
+
 .selected-menu {
     font-weight: bold;
     color: #FF8000;
@@ -297,6 +302,10 @@ ul.tree ul li:last-child:before {
     padding-bottom: 10px;
     border-radius: 10px;
     margin-bottom: 10px;
+}
+
+.modal-window-detail .modal-dialog {
+    width: 75%;
 }
 
 .green {

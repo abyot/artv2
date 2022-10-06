@@ -18,18 +18,18 @@
                 <div class="col-sm-4">
                     <div class="pull-left">
                         <button type="button"
-                                class="btn btn-default"
+                                class="btn btn-info"
                                 ng-click="getPeriods('PRV')"
-                                title="{{'previous_periods'| translate}}">
-                            <i class="fa fa-backward"></i>
+                                title="{{'previous_period'| translate}}">
+                            <i class="fa fa-caret-left"></i>
                         </button>
 
                         <button type="button"
-                                class="btn btn-default"
+                                class="btn btn-info long-horizontal-spacing"
                                 ng-disabled="model.periodOffset >= model.openFuturePeriods"
                                 ng-click="getPeriods('NXT')"
-                                title="{{'next_periods'| translate}}">
-                            <i class="fa fa-forward"></i>
+                                title="{{'next_period'| translate}}">
+                            <i class="fa fa-caret-right"></i>
                         </button>
                     </div>
                 </div>
@@ -80,30 +80,98 @@
         </span>
     </div>
     <div class="col-sm-7" id="exportTable">
+        <!--<table class="table table-bordered dhis2-table-hover table-responsive">
+            <thead>
+                <tr>
+                    <th class="vertical-center cursor-pointer" ng-repeat="header in model.summaryHeaders">
+                        <span ng-attr-title="{{'sort' | translate}}"  ng-click="setSortHeader(header)">
+                            {{header.displayName}}
+                            <span class="fa-stack hideInPrint">
+                                <span ng-class="{true: 'alert-danger'} [model.sortHeader.id === header.id && !model.sortHeader.reverse]"><i class="fa fa-sort-asc fa-stack-1x"></i></span>
+                                <span ng-class="{true: 'alert-danger'} [model.sortHeader.id === header.id && model.sortHeader.reverse]"><i class="fa fa-sort-desc fa-stack-1x"></i></span>
+                            </span>
+                        </span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat-start="art in model.arts | orderBy: model.sortHeader.id : model.sortHeader.reverse">
+                    <td ng-repeat="header in model.summaryHeaders"
+                        ng-class="{'green-background': header.code && header.code === 'green', 'yellow-background': header.code && header.code === 'yellow', 'red-background': header.code && header.code === 'red'}"
+                        ng-click="showSummaryDetails(art)">
+                        {{art[header.id]}}
+                    </td>
+                </tr>
+                <tr ng-repeat-end ng-if="model.selectedArt.ou === art.ou">
+                    <td ng-repeat="header in model.summaryHeadersg">
+                        {{header.id}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>-->
         <table class="table table-bordered dhis2-table-hover table-responsive">
             <thead>
                 <tr>
                     <th class="vertical-center cursor-pointer" ng-repeat="header in model.summaryHeaders">
                         <span ng-attr-title="{{'sort' | translate}}"  ng-click="setSortHeader(header)">
                             {{header.displayName}}
-
-                            <!-- sort icon begins -->
                             <span class="fa-stack hideInPrint">
                                 <span ng-class="{true: 'alert-danger'} [model.sortHeader.id === header.id && !model.sortHeader.reverse]"><i class="fa fa-sort-asc fa-stack-1x"></i></span>
                                 <span ng-class="{true: 'alert-danger'} [model.sortHeader.id === header.id && model.sortHeader.reverse]"><i class="fa fa-sort-desc fa-stack-1x"></i></span>
                             </span>
-                            <!-- sort icon ends -->
-
                         </span>
                     </th>
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="art in model.arts | orderBy: model.sortHeader.id : model.sortHeader.reverse">
+                <tr ng-repeat-start="art in model.arts | orderBy: model.sortHeader.id : model.sortHeader.reverse">
                     <td ng-repeat="header in model.summaryHeaders"
                         ng-class="{'green-background': header.code && header.code === 'green', 'yellow-background': header.code && header.code === 'yellow', 'red-background': header.code && header.code === 'red'}"
                         ng-click="showSummaryDetails(art)">
-                        {{art[header.id]}}
+                        <span ng-class="{'selected-art': model.selectedArt && model.selectedArt.ou === art.ou}">
+                            {{art[header.id]}}
+                        </span>
+                    </td>
+                </tr>
+                <tr ng-repeat-end ng-if="model.selectedArt.ou === art.ou">
+                    <td colspan="100%">
+                        <table class="table table-bordered dhis2-table-hover table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="vertical-center cursor-pointer"
+                                        ng-repeat="header in model.allArtHeaders"
+                                        ng-if="header.show">
+                                        <span ng-attr-title="{{'sort' | translate}}"  ng-click="sortItems(header)">
+                                            {{header.displayName}}
+
+                                            <!-- sort icon begins -->
+                                            <span class="fa-stack hideInPrint">
+                                                <span ng-class="{true: 'alert-danger'} [model.sortHeader.id === header.id && !reverse]"><i class="fa fa-sort-asc fa-stack-1x"></i></span>
+                                                <span ng-class="{true: 'alert-danger'} [model.sortHeader.id === header.id && reverse]"><i class="fa fa-sort-desc fa-stack-1x"></i></span>
+                                            </span>
+                                            <!-- sort icon ends -->
+                                        </span>
+                                    </th>
+                                    <th class="vertical-center">
+                                        {{'recommendation_age' | translate}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="art in art.arts" ng-class="{'green-background': art.trafficLight === 'green', 'yellow-background': art.trafficLight === 'yellow', 'red-background': art.trafficLight == 'red'}">
+                                    <td class="vertical-center"
+                                        ng-repeat="header in model.allArtHeaders"
+                                        ng-if="header.show"
+                                        ng-click="showArtDetails(art)"
+                                        ng-attr-title="{{'show_details'| translate}}">
+                                        {{art[header.id]}}
+                                    </td>
+                                    <td>
+                                        {{art.age}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </td>
                 </tr>
             </tbody>

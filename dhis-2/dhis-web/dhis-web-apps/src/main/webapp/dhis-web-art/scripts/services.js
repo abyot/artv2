@@ -232,7 +232,7 @@ var artSummaryServices = angular.module('artSummaryServices', ['ngResource'])
 })
 
 /* service for handling events */
-.service('ArtService', function($http, DHIS2URL, CommonUtils, DateUtils) {
+.service('ArtService', function($http, $filter, DHIS2URL, CommonUtils, DateUtils) {
 
     var ArtFunctions = {
         getAge: function(art, recommendationAtt, implementationAtt){
@@ -246,9 +246,40 @@ var artSummaryServices = angular.module('artSummaryServices', ['ngResource'])
 
             return DateUtils.getDifference( art[recommendationAtt.id], art[implementationAtt.id]);
         },
-        get: function(uid){
-            var promise = $http.get(DHIS2URL + '/trackedEntityInstances/' + uid + '.json?fields=*').then(function (response) {
-                return response.data;
+        get: function(selectedArt, programs, selectedProgram, dataElementsById, optionSetsById){
+            var promise = $http.get(DHIS2URL + '/trackedEntityInstances/' + selectedArt.instance + '.json?fields=*').then(function (response) {
+                var tei = response.data;
+                var enrollablePrograms = [], selectedEnrollment = null;
+                if ( tei && tei.enrollments && tei.enrollments.length > 0 ){
+                    angular.forEach(tei.enrollments, function(en){
+                        enrollablePrograms = $filter('filter')(programs, function(pr) {
+                            return (pr.id !== en.program );
+                        }, true);
+
+                        if ( en.program === selectedProgram.id ){
+                            selectedEnrollment = en;
+                            selectedEnrollment.enrollmentDate = DateUtils.formatFromApiToUser(selectedEnrollment.enrollmentDate);
+                            selectedArt.enrollment = selectedEnrollment.enrollment;
+                            selectedArt.enrollmentDate = angular.copy(selectedEnrollment.enrollmentDate);
+
+                            selectedArt.status = [];
+                            if ( en.events && en.events.length > 0 ){
+                                angular.forEach(en.events, function(ev){
+                                    ev.values = {};
+                                    ev.eventDate = DateUtils.formatFromApiToUser(ev.eventDate);
+                                    angular.forEach(ev.dataValues, function(dv){
+                                        var val = dv.value;
+                                        var de = dataElementsById[dv.dataElement];
+                                        val = CommonUtils.formatDataValue(ev, val, de, optionSetsById, 'USER');
+                                        ev.values[dv.dataElement] = val;
+                                    });
+                                    selectedArt.status.push( ev );
+                                });
+                            }
+                        }
+                    });
+                }
+                return {art: selectedArt, enrollment: selectedEnrollment, enrollablePrograms: enrollablePrograms};
             } ,function(error) {
                 return null;
             });

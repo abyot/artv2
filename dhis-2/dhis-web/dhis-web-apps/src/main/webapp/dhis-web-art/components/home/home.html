@@ -77,6 +77,7 @@
                                     ng-disabled="addOrEditArtDenied() || !model.selectedProgram || !selectedOrgUnit || isOnAddEditMode()"
                                     ng-click="showSearchArt()">
                                 {{'search'| translate}}
+                                <span class="btn-warning" ng-if="model.filterExists"><i class="fa fa-search" ></i></span>
                             </button>
                             <button type="button"
                                     class="btn btn-primary"

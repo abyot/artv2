@@ -238,11 +238,31 @@ var d2Services = angular.module('d2Services', ['ngResource'])
             return dateAfterOffset;
         },
         getDifference: function(startDate, endDate){
-            var firstdate = $filter('trimquotes')(startDate);
-            var seconddate = $filter('trimquotes')(endDate);
-            firstdate = moment(firstdate);
-            seconddate = moment(seconddate);
+            var firstdate = this.toMomentFormat(startDate);
+            var seconddate = this.toMomentFormat(endDate);
             return seconddate.diff(firstdate,'days');
+        },
+        toMomentFormat: function( dateValue ){
+            if (!dateValue) {
+                return;
+            }
+
+            dateValue = $filter('trimquotes')(dateValue);
+            var calendarSetting = CalendarService.getSetting();
+            var dateValues = dateValue.split('-');
+            var _dateValue = dateValues[0] + '/' + dateValues[1] + '/' + dateValues[2];
+
+            if ( calendarSetting.momentFormat === 'DD-MM-YYYY' ){
+                return moment(_dateValue, 'DD/MM/YYYY');
+            }
+            return moment(_dateValue, 'YYYY/MM/DD');
+        },
+        isValid: function( date ){
+            if(!date){
+                return false;
+            }
+            var convertedDate = this.format( date );
+            return date === convertedDate;
         }
     };
 })

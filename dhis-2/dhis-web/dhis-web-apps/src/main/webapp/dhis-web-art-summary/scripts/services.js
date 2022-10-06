@@ -58,7 +58,6 @@ var artSummaryServices = angular.module('artSummaryServices', ['ngResource'])
             p.id = p.iso;
         });
 
-        console.log('periods:  ', d2Periods);
         return d2Periods;
     };
 })
@@ -280,7 +279,7 @@ var artSummaryServices = angular.module('artSummaryServices', ['ngResource'])
 })
 
 /* service for handling events */
-.service('ArtService', function($http, DHIS2URL, CommonUtils, DateUtils) {
+.service('ArtService', function($http, $filter, DHIS2URL, CommonUtils, DateUtils) {
 
     var ArtFunctions = {
         getAge: function(art, recommendationAtt, implementationAtt){
@@ -294,9 +293,40 @@ var artSummaryServices = angular.module('artSummaryServices', ['ngResource'])
 
             return DateUtils.getDifference( art[recommendationAtt.id], art[implementationAtt.id]);
         },
-        get: function(uid){
-            var promise = $http.get(DHIS2URL + '/trackedEntityInstances/' + uid + '.json?fields=*').then(function (response) {
-                return response.data;
+        get: function(selectedArt, programs, selectedProgram, dataElementsById, optionSetsById){
+            var promise = $http.get(DHIS2URL + '/trackedEntityInstances/' + selectedArt.instance + '.json?fields=*').then(function (response) {
+                var tei = response.data;
+                var enrollablePrograms = [], selectedEnrollment = null;
+                if ( tei && tei.enrollments && tei.enrollments.length > 0 ){
+                    angular.forEach(tei.enrollments, function(en){
+                        enrollablePrograms = $filter('filter')(programs, function(pr) {
+                            return (pr.id !== en.program );
+                        }, true);
+
+                        if ( en.program === selectedProgram.id ){
+                            selectedEnrollment = en;
+                            selectedEnrollment.enrollmentDate = DateUtils.formatFromApiToUser(selectedEnrollment.enrollmentDate);
+                            selectedArt.enrollment = selectedEnrollment.enrollment;
+                            selectedArt.enrollmentDate = angular.copy(selectedEnrollment.enrollmentDate);
+
+                            selectedArt.status = [];
+                            if ( en.events && en.events.length > 0 ){
+                                angular.forEach(en.events, function(ev){
+                                    ev.values = {};
+                                    ev.eventDate = DateUtils.formatFromApiToUser(ev.eventDate);
+                                    angular.forEach(ev.dataValues, function(dv){
+                                        var val = dv.value;
+                                        var de = dataElementsById[dv.dataElement];
+                                        val = CommonUtils.formatDataValue(ev, val, de, optionSetsById, 'USER');
+                                        ev.values[dv.dataElement] = val;
+                                    });
+                                    selectedArt.status.push( ev );
+                                });
+                            }
+                        }
+                    });
+                }
+                return {art: selectedArt, enrollment: selectedEnrollment, enrollablePrograms: enrollablePrograms};
             } ,function(error) {
                 return null;
             });
@@ -374,13 +404,15 @@ var artSummaryServices = angular.module('artSummaryServices', ['ngResource'])
                     order += filterText;
                 }
 
-                promise = $http.get(DHIS2URL + '/trackedEntityInstances/query.json?' + order + '&totalPages=false&ouMode=DESCENDANTS&ou=' + orgUnit.id + '&program=' + program.id).then(function (response) {
+                promise = $http.get(DHIS2URL + '/trackedEntityInstances/query.json?' + order + '&totalPages=true&paging=false&pageSize=10000&ouMode=DESCENDANTS&ou=' + orgUnit.id + '&program=' + program.id).then(function (response) {
                     var arts = {};
                     if ( response.data && response.data.headers && response.data.rows ){
-                        var rows = response.data.rows, headers = response.data.headers;
+                        var rows = response.data.rows, headers = response.data.headers,
+                        recommendationAttribute = null, implementationAttribute = null;
                         for (var i = 0; i<rows.length; i++) {
                             var cols = rows[i];
                             var ou = '', ouName = '', trafficLight = 'red';
+                            var art = {};
                             for( var j=0; j<cols.length; j++){
                                 var val = cols[j];
                                 var att = attributesById[headers[j].name];
@@ -393,19 +425,40 @@ var artSummaryServices = angular.module('artSummaryServices', ['ngResource'])
                                 else if ( headers[j].name === 'ouname' ){
                                     ouName = cols[j];
                                 }
-                            }
 
+                                if ( att ){
+                                    val = CommonUtils.formatDataValue(null, val, att, optionSetsById, 'USER');
+                                    if( att.optionSetValue ){
+                                        var optionSet = optionSetsById[att.optionSet.id];
+                                        if ( optionSet && optionSet.isTrafficLight ){
+                                            art.trafficLight = rows[i][j];
+                                        }
+                                    }
+
+                                    if( att.recommendationDate ){
+                                        recommendationAttribute = att;
+                                    }
+                                    else if( att.implementationDate ){
+                                        implementationAttribute = att;
+                                    }
+                                }
+                                art[headers[j].name] = val;
+                            }
+                            art.age = ArtFunctions.getAge(art, recommendationAttribute, implementationAttribute);
                             if ( ou ){
                                 if ( arts[ou] ){
                                     arts[ou].total += 1;
+                                    arts[ou].arts.push(art);
                                 }
                                 else{
                                     arts[ou] = {
+                                        ou: ou,
                                         total: 1,
                                         name: ouName,
                                         red: 0,
                                         yellow: 0,
-                                        green: 0
+                                        green: 0,
+                                        arts: [art]
                                     };
                                 }
                                 ++arts[ou][trafficLight];

@@ -297,7 +297,6 @@ art.controller('HomeController',
             }
         });
 
-        console.log('the tei:  ', tei);
         /*ArtService.add(tei).then(function(data){
             if( data.response.importSummaries[0].status==='ERROR' ){
                 NotificationService.showNotifcationDialog($translate.instant("error"), $translate.instant("art_add_failed") + data.response.importSummaries[0].conflicts[0].value );
@@ -314,7 +313,7 @@ art.controller('HomeController',
     $scope.searchArt = function(){
 
         $scope.filterParam = '';
-        var filterExists = false;
+        $scope.model.filterExists = false;
 
         angular.forEach($scope.model.artHeaders, function(header){
             if ( $scope.filterText[header.id] ){
@@ -323,7 +322,7 @@ art.controller('HomeController',
                         var filters = $scope.filterText[header.id].map(function(filt) {return filt.code;});
                         if( filters.length > 0 ){
                             $scope.filterParam += '&filter=' + header.id + ':IN:' + filters.join(';');
-                            filterExists = true;
+                            $scope.model.filterExists = true;
                         }
                     }
                 }
@@ -332,22 +331,22 @@ art.controller('HomeController',
                         $scope.filterParam += '&filter=' + header.id;
                         if( $scope.filterText[header.id].start ){
                             $scope.filterParam += ':GT:' + $scope.filterText[header.id].start;
-                            filterExists = true;
+                            $scope.model.filterExists = true;
                         }
                         if( $scope.filterText[header.id].end ){
                             $scope.filterParam += ':LT:' + $scope.filterText[header.id].end;
-                            filterExists = true;
+                            $scope.model.filterExists = true;
                         }
                     }
                 }
                 else{
                     $scope.filterParam += '&filter=' + header.id + ':like:' + $scope.filterText[header.id];
-                    filterExists = true;
+                    $scope.model.filterExists = true;
                 }
             }
         });
 
-        if ( filterExists ){
+        if ( $scope.model.filterExists ){
             $scope.fetchRecommendations('DESCENDANTS');
             $scope.model.displaySearchArt = false;
         }
@@ -379,37 +378,11 @@ art.controller('HomeController',
         if ( selectedArt && selectedArt.instance && $scope.model.selectedProgram.programStages && $scope.model.selectedProgram.programStages.length > 0 ){
             $scope.model.selectedStage = $scope.model.selectedProgram.programStages[0];
 
-            ArtService.get(selectedArt.instance).then(function(tei){
-                $scope.model.sourceArt = tei;
-                if ( tei.enrollments.length > 0 ){
-                    angular.forEach(tei.enrollments, function(en){
-                        $scope.model.enrollablePrograms = $filter('filter')($scope.model.enrollablePrograms, function(pr) {
-                            return (pr.id !== en.program );
-                        }, true);
-
-                        if ( en.program === $scope.model.selectedProgram.id ){
-                            $scope.model.selectedEnrollment = en;
-                            $scope.model.selectedEnrollment.enrollmentDate = DateUtils.formatFromApiToUser($scope.model.selectedEnrollment.enrollmentDate);
-                            selectedArt.enrollment = $scope.model.selectedEnrollment.enrollment;
-                            selectedArt.enrollmentDate = angular.copy($scope.model.selectedEnrollment.enrollmentDate);
-
-                            selectedArt.status = [];
-                            if ( en.events && en.events.length > 0 ){
-                                angular.forEach(en.events, function(ev){
-                                    ev.values = {};
-                                    ev.eventDate = DateUtils.formatFromApiToUser(ev.eventDate);
-                                    angular.forEach(ev.dataValues, function(dv){
-                                        var val = dv.value;
-                                        var de = $scope.model.dataElementsById[dv.dataElement];
-                                        val = CommonUtils.formatDataValue(ev, val, de, $scope.model.optionSets, 'USER');
-                                        ev.values[dv.dataElement] = val;
-                                    });
-                                    selectedArt.status.push( ev );
-                                });
-                            }
-                        }
-                    });
-
+             ArtService.get(selectedArt, $scope.model.enrollablePrograms, $scope.model.selectedProgram, $scope.model.dataElementsById, $scope.model.optionSets ).then(function( response ){
+                if ( response.art && response.enrollment ){
+                    $scope.model.sourceArt = response.art;
+                    $scope.model.selectedEnrollment = response.enrollment;
+                    selectedArt = response.art;
                     $scope.model.art = angular.copy(selectedArt);
                     $scope.model.originalArt = angular.copy(selectedArt);
                 }
