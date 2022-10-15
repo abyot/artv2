@@ -41,7 +41,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-attr-title="{{'show_details'| translate}}" class="cursor-pointer" ng-repeat="status in model.art.status" ng-click="showRecordAction(status)">
+                            <tr ng-attr-title="{{'show_details'| translate}}" ng-repeat="status in model.art.status" ng-click="showRecordAction(status)">
                                 <td>
                                     {{status.eventDate}}
                                 </td>
@@ -54,13 +54,6 @@
 
                     <div class="alert alert-warning" ng-if="$scope.model.art.status.length === 0">
                         {{'no_action_exists'| translate}}
-                    </div>
-                    <div class="row col-sm-12 vertical-spacing" ng-if="model.selectedStage">
-                        <button type="button"
-                                class="btn btn-primary"
-                                ng-click="showRecordAction()">
-                            {{'record_action'| translate}}
-                        </button>
                     </div>
                 </div>
             </div>
