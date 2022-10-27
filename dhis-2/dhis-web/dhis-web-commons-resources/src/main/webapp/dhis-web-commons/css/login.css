@@ -10,6 +10,12 @@ html,body
   background-color: #1d5288;  
   color: white;
   font-size: 15px;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-flow: column;
 }
 
 a
@@ -133,7 +139,6 @@ a:hover
 
 #footerArea
 {
-  position: absolute;
   bottom: 0;
   left: 0;
   padding: 8px 0 7px 0;
